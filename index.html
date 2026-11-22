@@ -18,7 +18,7 @@
   --font-display:"Anton",Impact,"Arial Narrow",sans-serif;
   --font-sans:"Space Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"Share Tech Mono",ui-monospace,"SF Mono",Menlo,monospace;
-  --r-sm:4px;--gutter:24px;--nav-h:56px;
+  --r-sm:4px;--gutter:24px;--nav-h:56px;--footer-h:69px;
   color-scheme:dark;
 }
 
@@ -175,15 +175,16 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 @media (max-width:640px){.exp{grid-template-columns:1fr;gap:8px}}
 
 /* contact */
-.contact{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;padding:clamp(72px,10vw,128px) var(--gutter)}
-.contact .headline{font-size:clamp(56px,10vw,120px);color:var(--ink);text-shadow:4px 4px 0 var(--primary-deep)}
-.contact-form{width:100%;max-width:620px;margin-top:16px;display:flex;flex-direction:column;gap:18px;padding:28px;text-align:left;background:var(--panel);border:2px solid var(--line-strong);border-radius:var(--r-sm);box-shadow:8px 8px 0 var(--accent-deep)}
+/* Contact + footer fill exactly one screen so the last scroll shows the whole form */
+.contact{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,1.6vh,18px);text-align:center;min-height:calc(100vh - var(--nav-h) - var(--footer-h));min-height:calc(100svh - var(--nav-h) - var(--footer-h));padding:clamp(24px,4vh,72px) var(--gutter)}
+.contact .headline{font-size:clamp(40px,min(10vw,9vh),120px);color:var(--ink);text-shadow:4px 4px 0 var(--primary-deep)}
+.contact-form{width:100%;max-width:620px;margin-top:clamp(0px,1vh,16px);display:flex;flex-direction:column;gap:clamp(12px,1.8vh,18px);padding:clamp(18px,3vh,28px);text-align:left;background:var(--panel);border:2px solid var(--line-strong);border-radius:var(--r-sm);box-shadow:8px 8px 0 var(--accent-deep)}
 .field-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:18px}
 .field{display:flex;flex-direction:column;gap:8px}
 .field span{font:13px/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted)}
 .field select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-muted) 50%),linear-gradient(135deg,var(--ink-muted) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:40px;cursor:pointer}
 .field input,.field textarea,.field select{width:100%;padding:12px 14px;background:var(--bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r-sm);font:16px/1.5 var(--font-sans);transition:border-color .15s}
-.field textarea{resize:vertical;min-height:140px}
+.field textarea{resize:vertical;min-height:clamp(72px,14vh,140px)}
 .field select{background-color:var(--bg)}
 .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .botcheck{display:none}
@@ -192,7 +193,7 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 .form-status.ok{color:var(--accent)}
 .form-status.err{color:#ff8a8a}
 .contact-form button[disabled]{opacity:.6;cursor:progress}
-.footer{position:relative;z-index:1;padding:24px var(--gutter);border-top:1px solid var(--line);text-align:center;font:14px/20px var(--font-mono);color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;background:var(--bg)}
+.footer{position:relative;z-index:1;box-sizing:border-box;height:var(--footer-h);padding:24px var(--gutter);border-top:1px solid var(--line);text-align:center;font:14px/20px var(--font-mono);color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;background:var(--bg)}
 
 /* Lenis smooth scrolling takes over from native smooth scroll while it runs */
 html.lenis,html.lenis body{height:auto}
@@ -371,7 +372,7 @@ html.lenis,html.lenis body{height:auto}
         <option>Something else</option>
       </select>
     </label>
-    <label class="field"><span>Message</span><textarea name="message" rows="6" required maxlength="5000"></textarea></label>
+    <label class="field"><span>Message</span><textarea name="message" rows="3" required maxlength="5000"></textarea></label>
     <div class="form-foot">
       <button class="btn btn-primary" type="submit">Send message</button>
       <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
