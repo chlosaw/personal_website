@@ -174,6 +174,23 @@ body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;op
 .exp-main{display:flex;flex-direction:column;gap:4px}
 @media (max-width:640px){.exp{grid-template-columns:1fr;gap:8px}}
 
+/* Desktop: scale vertical spacing with screen height so every section fits on one screen (scrolling moves one whole section at a time) */
+@media (min-width:821px){
+  .section{padding-block:clamp(24px,5vh,112px);gap:clamp(16px,3.2vh,44px)}
+  .section .headline{font-size:clamp(36px,min(6vw,7vh),72px)}
+  .section-head{gap:clamp(4px,1vh,10px)}
+  .section-head .headline::after{margin-top:clamp(8px,1.6vh,16px)}
+  .offer{padding:clamp(18px,3vh,30px);gap:clamp(6px,1.2vh,12px)}
+  .offer-price{padding-top:clamp(4px,1.2vh,14px)}
+  .card-visual{height:clamp(90px,16vh,220px)}
+  .card-body{padding:clamp(16px,2.6vh,28px);gap:clamp(4px,.8vh,8px)}
+  .card-body .actions{padding-top:clamp(8px,1.8vh,22px)}
+  .card-desc,.card-result,.offer-list,.offers-note{font-size:clamp(14px,1.9vh,17px);line-height:1.45}
+  .hero{padding-block:clamp(24px,5vh,96px)}
+  .portrait{width:min(100%,460px,60vh)}
+  .hero-copy{gap:clamp(12px,2.4vh,22px)}
+}
+
 /* contact */
 /* Contact + footer fill exactly one screen so the last scroll shows the whole form */
 .contact{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,1.6vh,18px);text-align:center;min-height:calc(100vh - var(--nav-h) - var(--footer-h));min-height:calc(100svh - var(--nav-h) - var(--footer-h));padding:clamp(24px,4vh,72px) var(--gutter)}
@@ -398,7 +415,7 @@ html.lenis,html.lenis body{height:auto}
     blocks.forEach(function(el){
       var top=el.getBoundingClientRect().top+scrollY-navH,extra=el.offsetHeight-view;
       out.push(top);
-      if(extra>8){ // taller than the screen: page through it with a little overlap so the reader keeps their place
+      if(extra>24){ // taller than the screen: page through it with a little overlap so the reader keeps their place
         var n=Math.ceil(extra/(view*.85));
         for(var i=1;i<=n;i++)out.push(top+extra*i/n);
       }
@@ -410,10 +427,10 @@ html.lenis,html.lenis body{height:auto}
   var busy=false,timer;
   function scrollToY(y){
     busy=true;clearTimeout(timer);
-    var done=function(){busy=false};
+    var done=function(){if(busy){busy=false;doneAt=performance.now()}};
     if(lenis)lenis.scrollTo(y,{duration:1,force:true,lock:true,onComplete:done});
     else scrollTo({top:y,behavior:reduce?'auto':'smooth'});
-    timer=setTimeout(done,reduce?80:1100); // safety net in case the animation is interrupted
+    timer=setTimeout(done,reduce?80:1200); // safety net in case the animation is interrupted
   }
   function go(dir){
     var y=scrollY,s=stops(),t;
@@ -424,16 +441,20 @@ html.lenis,html.lenis body{height:auto}
 
   // One gesture = one step. Trackpads keep firing fading "inertia" events after a swipe; those are ignored
   // until the wheel goes quiet or a clearly new, stronger swipe starts.
-  var last=0,lastAbs=0;
+  var last=0,peak=0,doneAt=0;
   addEventListener('wheel',function(e){
     if(e.ctrlKey)return; // pinch-zoom
     var ta=e.target.closest&&e.target.closest('textarea');
     if(ta&&ta.scrollHeight>ta.clientHeight)return;
     e.preventDefault();
-    var now=performance.now(),abs=Math.abs(e.deltaY),gap=now-last,prev=lastAbs;
-    last=now;lastAbs=abs;
-    if(busy||abs<2)return;
-    if(gap<220&&!(abs>prev*2&&abs>24))return;
+    var now=performance.now(),abs=Math.abs(e.deltaY),gap=now-last;
+    last=now;
+    if(busy){peak=Math.max(peak,abs);return}
+    // A new gesture starts after a pause, or when a fresh swipe pushes clearly harder than the fading inertia
+    var fresh=gap>300||(now-doneAt>350&&abs>40&&abs>peak*1.5);
+    peak=gap>300?abs:Math.max(abs,peak*.9); // decay the remembered strength as inertia fades
+    if(!fresh||abs<4)return;
+    peak=abs;
     go(e.deltaY>0?1:-1);
   },{passive:false});
 
